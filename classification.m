@@ -14,7 +14,9 @@ function [e, p] = classification(C,H,z,tol)
             end
             
         end  
-    end    
-    
+    end
+    %if person not found
+    p = 0;
+    e = 0;
 end
 
