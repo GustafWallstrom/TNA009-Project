@@ -29,3 +29,6 @@ codegen/
 
 # Octave session info
 octave-workspace
+
+#Tensor toolbox
+/tensor_toolbox
