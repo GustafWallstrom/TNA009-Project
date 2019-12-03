@@ -8,11 +8,11 @@ function disp(t, name)
 %   See also DISP, KTENSOR/DISPLAY, KTENSOR
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -24,7 +24,9 @@ if ~exist('name','var')
 end
 
 fprintf('%s is a ktensor of size %s\n', name, tt_size2str(size(t)));
-fprintf('\t%s.lambda = %s\n',name, ['[ ' num2str(t.lambda') ' ]'] );
+output = tt_matrix2cellstr(t.lambda');
+fprintf('\t%s.lambda = \n',name);
+fprintf('\t\t%s\n',output{:});
 
 if (ndims(t) > 0)
     for j = 1 : ndims(t)

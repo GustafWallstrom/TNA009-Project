@@ -2,19 +2,20 @@ function b = permute(a,order)
 %PERMUTE Permute dimensions of a ktensor.
 %
 %   B = PERMUTE(A,ORDER) rearranges the dimensions of A so that they
-%   are in the order specified by the vector ORDER. The tensor
-%   produced has the same values of A but the order of the subscripts
-%   needed to access any particular element are rearranged as
-%   specified by ORDER.
+%   are in the order specified by the vector ORDER. The output is a ktensor
+%   with components rearranged as specified by ORDER. The corresponding 
+%   tensor has the same components as A but the order of the subscripts
+%   needed to access any particular element is rearranged as specified by 
+%   ORDER.
 %
 %   See also KTENSOR.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.

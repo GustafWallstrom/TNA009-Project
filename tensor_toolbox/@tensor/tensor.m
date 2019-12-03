@@ -1,11 +1,93 @@
+%TENSOR Class for dense tensors.
+%
+%TENSOR Methods:
+%   and         - Logical AND (&) for tensors.
+%   collapse    - Collapse tensor along specified dimensions.
+%   contract    - Contract tensor along two dimensions (array trace).
+%   disp        - Command window display of a tensor.
+%   display     - Command window display of a tensor.
+%   double      - Convert tensor to double array.
+%   end         - Last index of indexing expression for tensor.
+%   eq          - Equal (==) for tensors.
+%   exp         - Exponential for tensors.
+%   find        - Find subscripts of nonzero elements in a tensor.
+%   full        - Convert to a (dense) tensor.
+%   ge          - Greater than or equal (>=) for tensors.
+%   gt          - Greater than (>) for tensors.
+%   innerprod   - Efficient inner product with a tensor.
+%   isequal     - for tensors.
+%   isscalar    - False for tensors.
+%   issymmetric - Verify that a tensor X is symmetric in specified modes.
+%   ldivide     - Left array divide for tensor.
+%   le          - Less than or equal (<=) for tensor.
+%   lt          - Less than (<) for tensor.
+%   mask        - Extract values as specified by a mask tensor.
+%   minus       - Binary subtraction (-) for tensors.
+%   mldivide    - Slash left division for tensors.
+%   mrdivide    - Slash right division for tensors.
+%   mtimes      - tensor-scalar multiplication.
+%   mttkrp      - Matricized tensor times Khatri-Rao product for tensor.
+%   mttkrps     - Sequence of MTTKRP calculations for dense tensor.
+%   ndims       - Return the number of dimensions of a tensor.
+%   ne          - Not equal (~=) for tensors.
+%   nnz         - Number of nonzeros for tensors. 
+%   norm        - Frobenius norm of a tensor.
+%   not         - Logical NOT (~) for tensors.
+%   nvecs       - Compute the leading mode-n vectors for a tensor.
+%   or          - Logical OR (|) for tensors.
+%   permute     - Permute tensor dimensions.
+%   plus        - Binary addition (+) for tensors. 
+%   power       - Elementwise power (.^) operator for a tensor.
+%   rdivide     - Right array divide for tensors.
+%   reshape     - Change tensor size.
+%   scale       - Scale along specified dimensions of tensor.
+%   size        - Tensor dimensions.
+%   squeeze     - Remove singleton dimensions from a tensor.
+%   subsasgn    - Subscripted assignment for a tensor.
+%   subsref     - Subscripted reference for tensors.
+%   symmetrize  - Symmetrize a tensor X in specified modes.
+%   tenfun      - Apply a function to each element in a tensor.
+%   tensor      - Create tensor.
+%   times       - Array multiplication for tensors.
+%   transpose   - is not defined on tensors.
+%   ttm         - Tensor times matrix.
+%   ttsv        - Tensor times same vector in multiple modes.
+%   ttt         - Tensor mulitplication (tensor times tensor).
+%   ttv         - Tensor times vector.
+%   uminus      - Unary minus (-) for tensors.
+%   uplus       - Unary plus (+) for tensors.
+%   xor         - Logical EXCLUSIVE OR for tensors.
+%
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'tensor_doc.html')))">Documentation page for tensor class</a>
+%
+%   See also TENSOR_TOOLBOX
+%
+%   Reference:
+%   * BW Bader and TG Kolda. Algorithm 862: MATLAB Tensor Classes for Fast
+%     Algorithm Prototyping, ACM Trans Mathematical Software 32:635-653, 2006.
+%     <a href="http://dx.doi.org/10.1145/1186785.1186794"
+%     >DOI:10.1145/1186785.1186794</a>. <a href="matlab:web(strcat('file://',...
+%     fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%     'bibtex.html#TTB_Dense')))">[BibTeX]</a>
+%
+%MATLAB Tensor Toolbox. Copyright 2017, Sandia Corporation.
+
+
 function t = tensor(varargin)
 %TENSOR Create tensor.
 %
-%   X = TENSOR(A,SIZ) creates a tensor from the multidimensional
-%   array A. The SIZ argument specifies the desired shape of A.
+%   X = TENSOR(A,SIZ) creates a tensor from the multidimensional array A.
+%   The SIZ argument is a size vector specifying the desired shape 
+%   of A.
 %
-%   X = TENSOR(A) creates a tensor from the multidimensional array
-%   Z, using SIZ = size(A).
+%   X = TENSOR(F,SIZ) createa a tensor of size SIZ using the function
+%   handle F to create the data. The function F must take a size vector as
+%   input. 
+%
+%   X = TENSOR(A) creates a tensor from the multidimensional array A, using
+%   SIZ = size(A). 
 %
 %   X = TENSOR(S) copies a tensor S.
 %
@@ -16,17 +98,19 @@ function t = tensor(varargin)
 %
 %   Examples
 %   X = tensor(rand(3,4,2)) %<-- Tensor of size 3 x 4 x 2
-%   Y = tensor(rand(3,1),3) %<-- Tensor of size 3
-%   Z = tensor(rand(12,1),[3 4 1]) %<-- Tensor of size 3 x 4 x 1
+%   X = tensor(@rand, [3 4 2]) %<-- Equivalent
+%   Y = tensor(zeros(3,1),3) %<-- Tensor of size 3
+%   Y = tensor(@zeros, [3 1]);
+%   Z = tensor(ones(12,1),[3 4 1]) %<-- Tensor of size 3 x 4 x 1
+%   Z = tensor(@ones, [3 4 1]) %<-- Equivalent
 %
-%   See also TENMAT, SPTENSOR, KTENSOR, TTENSOR, TENSOR/NDIMS.
+%   See also TENSOR, TENSOR/NDIMS.
 %
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%MATLAB Tensor Toolbox. Copyright 2017, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -53,7 +137,7 @@ if (nargin == 1)
             t.size = v.size;
             t = class(t, 'tensor');
             return;
-        case {'ktensor','ttensor','sptensor'},  
+        case {'ktensor','ttensor','sptensor','sumtensor','symtensor','symktensor'},  
             % CONVERSION
             t = full(v);
             return;
@@ -74,6 +158,26 @@ if (nargin == 1)
             t = class(t, 'tensor');
             return;
     end
+end
+
+% FUNCTION HANDLE AND SIZE
+if (nargin <= 2) && isa(varargin{1},'function_handle')
+    fh = varargin{1};
+    siz = varargin{2};
+    
+    % Check size
+    if ~isrow(siz)
+        error('TTB:BadInput', 'Size must be a row vector');
+    end
+    
+    % Generate data
+    data = fh([siz 1 1]);
+        
+    % Create the tensor
+    t.data = data;
+    t.size = siz;
+    t = class(t, 'tensor');
+    return;
 end
 
 % CONVERT A MULTIDIMENSIONAL ARRAY
@@ -101,7 +205,7 @@ if (nargin <= 2)
             error('Empty tensor cannot contain any elements');
         end
     elseif prod(siz) ~= numel(data)
-        error('Size of data does not match specified size of tensor');
+        error('TTB:WrongSize', 'Size of data does not match specified size of tensor');
     end
     
     % Make sure the data is indeed the right shape

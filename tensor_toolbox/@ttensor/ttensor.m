@@ -1,3 +1,37 @@
+%TTENSOR Class for Tucker tensors (decomposed).
+%
+%TTENSOR Methods:
+%   disp      - Command window display of a ttensor.
+%   display   - Command window display of a ttensor.
+%   double    - Convert ttensor to double array.
+%   end       - Last index of indexing expression for ttensor.
+%   full      - Convert a ttensor to a (dense) tensor.
+%   innerprod - Efficient inner product with a ttensor.
+%   isequal   - True if the part of two ttensor's are numerically equal.
+%   isscalar  - False for ttensors.
+%   mtimes    - Implement scalar multiplication for a ttensor.
+%   mttkrp    - Matricized tensor times Khatri-Rao product for ttensor.
+%   ndims     - Return the number of dimensions for a ttensor.
+%   norm      - Norm of a ttensor.
+%   nvecs     - Compute the leading mode-n vectors for a ttensor.
+%   permute   - Permute dimensions for a ttensor.
+%   size      - Size of a ttensor.
+%   subsasgn  - Subscripted assignment for a ttensor.
+%   subsref   - Subscripted reference for a ttensor.
+%   ttensor   - Tensor stored as a Tucker operator (decomposed).
+%   ttm       - Tensor times matrix for ttensor.
+%   ttv       - Tensor times vector for ttensor.
+%   uminus    - Unary minus for ttensor.
+%   uplus     - Unary plus for ttensor.
+%
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'ttensor_doc.html')))">Documentation page for Tucker tensor class</a>
+%
+%   See also TENSOR_TOOLBOX
+%
+%MATLAB Tensor Toolbox. Copyright 2017, Sandia Corporation.
+
 function t = ttensor(varargin)
 %TTENSOR Tensor stored as a Tucker operator (decomposed).
 %
@@ -25,19 +59,18 @@ function t = ttensor(varargin)
 %
 %   T = TTENSOR is the empty constructor.
 %
-%   See also TENSOR, KTENSOR
+%   See also TTENSOR, TUCKER_ALS.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2010, Sandia Corporation. 
+%Copyright 2015, Sandia Corporation.
 
-% This is the MATLAB Tensor Toolbox by Brett Bader and Tamara Kolda. 
-% http://csmr.ca.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2010) Sandia Corporation. Under the terms of Contract
+% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
+% http://www.sandia.gov/~tgkolda/TensorToolbox.
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
-% The full license terms can be found in tensor_toolbox/LICENSE.txt
-% $Id: ttensor.m,v 1.7 2010/03/19 23:46:31 tgkolda Exp $
+% The full license terms can be found in the file LICENSE.txt
 
 % Empty constructor
 if (nargin == 0)

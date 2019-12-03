@@ -25,18 +25,13 @@ function [T,Uinit] = tucker_als(X,R,varargin)
 %   U0 = {rand(5,2),rand(4,2),[]}; %<-- Initial guess for factors of T
 %   T = tucker_als(X,2,'dimorder',[3 2 1],'init',U0);
 %
-%   See also TTENSOR, TENSOR, SPTENSOR, KTENSOR.
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'tucker_als_doc.html')))">Documentation page for Tucker-ALS</a>
 %
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
-
-% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
-% http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
-% DE-AC04-94AL85000, there is a non-exclusive license for use of this
-% work by or on behalf of the U.S. Government. Export of this data may
-% require a license from the United States Government.
-% The full license terms can be found in the file LICENSE.txt
+%   See also HOSVD, TTENSOR, TENSOR, SPTENSOR, KTENSOR.
+%
+%MATLAB Tensor Toolbox. Copyright 2018, Sandia Corporation.
 
 
 % Extract number of dimensions and norm of X.

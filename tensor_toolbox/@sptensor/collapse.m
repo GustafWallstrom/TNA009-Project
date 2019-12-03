@@ -19,14 +19,18 @@ function s = collapse(t,dims,fun)
 %  Y = collapse(ones(X),[1 2],@max) %<-- 1 if mode-3 has any entry
 %  Y = collapse(ones(X),-3,@max); %<-- equivalent
 %
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'collapse_scale_doc.html')))">Documentation page for collapsing and scaling tensors</a>
+%
 %  See also SPTENSOR, SPTENSOR/SCALE.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.

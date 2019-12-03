@@ -38,11 +38,11 @@ function Y = ttm(X,V,varargin)
 %   See also TENSOR, TENSOR/TTT, TENSOR/TTV.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -58,6 +58,7 @@ end
 %% Create 'n' and 'tflag' arguments from varargin
 n = 1:ndims(X);
 tflag = '';
+ver = 0;
 if numel(varargin) == 1
     if ischar(varargin{1})
         tflag = varargin{1};
@@ -67,6 +68,10 @@ if numel(varargin) == 1
 elseif numel(varargin) == 2
     n = varargin{1};
     tflag = varargin{2};
+elseif numel(varargin) == 3
+    n = varargin{1};
+    tflag = varargin{2};
+    ver = varargin{3};
 end
 
 %% Handle cell array
@@ -77,15 +82,15 @@ if iscell(V)
     [dims,vidx] = tt_dimscheck(dims,ndims(X),numel(V));
     % Calculate individual products
     Y = ttm(X, V{vidx(1)}, dims(1), tflag);
-    for i = 2 : numel(dims)
-        Y = ttm(Y, V{vidx(i)}, dims(i), tflag);
+    for k = 2 : numel(dims)
+        Y = ttm(Y, V{vidx(k)}, dims(k), tflag);
     end
     % All done
     return;
 end
 
 %% Check the second argument
-if ndims(V) ~= 2
+if ~ismatrix(V)
     error('tensor/ttm: 2nd argument must be a matrix.');
 end
 
@@ -94,24 +99,72 @@ if (numel(n) ~= 1 || (n < 0) || n > ndims(X))
     error('Dimension N must be between 1 and NDIMS(X).');
 end
 
-%% COMPUTE THE PRODUCT 
+%% COMPUTE SINGLE N-MODE PRODUCT 
 
 N = ndims(X);
 sz = size(X);
-order = [n,1:n-1,n+1:N];
-newdata = double(permute(X,order));
-newdata = reshape(newdata,sz(n),prod(sz([1:n-1,n+1:N])));
-if tflag == 't'
-    newdata = V'*newdata;
-    p = size(V,2);
-else
-    newdata = V*newdata;
-    p = size(V,1);
-end
-newsz = [p,sz(1:n-1),sz(n+1:N)];
-Y = tensor(newdata,newsz);
-Y = ipermute(Y,order);
 
+if ver == 0  %old verion
+    order = [n,1:n-1,n+1:N];
+    newdata = double(permute(X,order));
+    newdata = reshape(newdata,sz(n),prod(sz([1:n-1,n+1:N])));
+    if tflag == 't'
+        newdata = V' * newdata;
+        p = size(V,2);
+    else
+        newdata = V*newdata;
+        p = size(V,1);
+    end
+    newsz = [p,sz(1:n-1),sz(n+1:N)];
+    Y = tensor(newdata,newsz);
+    Y = ipermute(Y,order);
+else % new version
+    
+    if tflag == 't'
+        p = size(V, 2);
+    else
+       p = size(V, 1);
+    end
+
+    
+    if n == 1
+        A = reshape(X.data, sz(n), []);
+        if tflag == 't'
+            B = V' * A;
+        else
+            B = V * A;
+        end
+    elseif n == N
+        At = reshape(X.data, [], sz(n));
+        if tflag == 't'
+            B = At * V;
+        else
+            B = At * V';
+        end
+    else
+        nblocks = prod(sz(n+1:N));
+        ncols = prod(sz(1:n-1)); % Per block
+        nAk = sz(n) * ncols; % Number entries in each block of A
+        nBk = p * ncols;
+        B = zeros(p * nblocks * ncols, 1);
+        for k = 1 : nblocks
+            % Extract k-th sub-block of A (in row-major orientation)
+            Akt = reshape(X.data((k-1) * nAk + 1: k * nAk), ncols, sz(n));
+            if tflag == 't'
+                Bkt = Akt * V;
+            else
+                Bkt = Akt * V';
+            end
+            B((k-1) * nBk + 1: k * nBk) = Bkt(:);        
+        end
+        
+    end
+    newsz = sz;
+    newsz(n) = p;
+    Y = tensor(B, newsz);
+   
+   
+end
 
 return;
 

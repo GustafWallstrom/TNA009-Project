@@ -7,16 +7,7 @@ function A = import_data(fname)
 %
 %   See also TENSOR, EXPORT_DATA
 %
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
-
-% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
-% http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
-% DE-AC04-94AL85000, there is a non-exclusive license for use of this
-% work by or on behalf of the U.S. Government. Export of this data may
-% require a license from the United States Government.
-% The full license terms can be found in the file LICENSE.txt
+%MATLAB Tensor Toolbox. Copyright 2018, Sandia Corporation.
 
 
 %% Open file
@@ -26,8 +17,7 @@ if (fid == -1)
 end
 
 %% Get the type of object
-line = fgets(fid);
-type = sscanf(line, '%s');
+type = import_type(fid);
 
 %% Import the object
 
@@ -37,11 +27,35 @@ if strcmpi(type,'tensor')
     data = import_array(fid, prod(sz));   
     A = tensor(data, sz);
  
-elseif strcmpi(type,'matrix')        
+elseif strcmpi(type,'sptensor')
+    
+    sz = import_size(fid);
+    nz = import_nnz(fid);
+    [subs, vals] = import_sparse_array(fid, length(sz), nz);   
+    A = sptensor(subs, vals, sz);
+ 
+elseif strcmpi(type,'matrix') || strcmpi(type,'matrix')         
 
     sz = import_size(fid);
     data = import_array(fid, prod(sz));   
     A = reshape(data, sz);
+    
+elseif strcmpi(type,'ktensor')        
+
+    sz = import_size(fid);
+    r = import_rank(fid);
+    lambda = import_array(fid, r);
+    U = {};
+    for n = 1:length(sz)
+        line = fgets(fid);
+        fac_type = import_type(fid);
+        fac_sz = import_size(fid);
+        fac_data = import_array(fid, prod(fac_sz));
+        % row wise reshape
+        fac = reshape(fac_data, fliplr(fac_sz))';
+        U{n} = fac;
+    end
+    A = ktensor(lambda,U);
     
 else   
     
@@ -52,6 +66,12 @@ end
 
 %% Close file
 fclose(fid);
+
+function type = import_type(fid)
+% Import IO data type
+line = fgets(fid);
+typelist = regexp(line, '\s+', 'split');
+type = typelist(1);
 
 function sz = import_size(fid)
 % Import the size of something from a file
@@ -64,6 +84,25 @@ if (size(sz,2) ~= n)
     error('Imported dimensions are not of expected size');
 end
 
+function nz = import_nnz(fid)
+% Import the size of something from a file
+line = fgets(fid);
+nz = sscanf(line, '%d');
+
+function r = import_rank(fid)
+% Import the rank of something from a file
+line = fgets(fid);
+r = sscanf(line, '%d');
+
 function data = import_array(fid, n)
-% Export dense data that supports numel and linear indexing
+% Import dense data that supports numel and linear indexing
 data = fscanf(fid, '%e', n);
+
+function [subs, vals] = import_sparse_array(fid, n, nz)
+% Import sparse data subs and vals from coordinate format data
+data = textscan(fid,[repmat('%f',1,n) '%n']);
+subs = cell2mat(data(1:n));
+vals = data{n+1};
+if (size(subs,1) ~= nz)
+    error('Imported nonzeros are not of expected size');
+end

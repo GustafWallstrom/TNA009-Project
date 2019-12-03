@@ -10,11 +10,11 @@ function a = reshape(a,new_size,old_modes)
 %  See also SPTENSOR, SPTENSOR/PERMUTE, RESHAPE.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -35,10 +35,14 @@ if prod(new_size) ~= prod(old_size)
     error('prod(SIZ) must be the same size of prod(SIZE(X,MODES))');
 end
 
-inds = tt_sub2ind(old_size,a.subs(:,old_modes));
-new_subs = tt_ind2sub(new_size,inds);
+if isempty(a.subs)
+    a.size = [keep_size new_size];
+    a.subs = [];
+else
+    inds = tt_sub2ind(old_size,a.subs(:,old_modes));
+    new_subs = tt_ind2sub(new_size,inds);
 
-a.size = [keep_size new_size];
-a.subs = [a.subs(:,keep_modes) new_subs];
-
+    a.size = [keep_size new_size];
+    a.subs = [a.subs(:,keep_modes) new_subs];
+end
 

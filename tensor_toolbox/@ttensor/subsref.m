@@ -1,9 +1,11 @@
 function a = subsref(t,s)
 %SUBSREF Subscripted reference for a ttensor.
 %
+%   Subscripted reference is used to query the components of a ttensor.
+%
 %   Examples
 %   core = tensor(rand(2,2,2));
-%   X = TTENSOR(core, rand{4,2), rand(5,2),rand(3,2));
+%   X = ttensor(core, rand(4,2), rand(5,2), rand(3,2));
 %   X.core %<-- returns core array
 %   X.U %<-- returns a cell array of three matrices
 %   X.U{1} %<-- returns the matrix corresponding to the first mode.
@@ -11,16 +13,15 @@ function a = subsref(t,s)
 %   See also TTENSOR.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2010, Sandia Corporation. 
+%Copyright 2015, Sandia Corporation.
 
-% This is the MATLAB Tensor Toolbox by Brett Bader and Tamara Kolda. 
-% http://csmr.ca.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2010) Sandia Corporation. Under the terms of Contract
+% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
+% http://www.sandia.gov/~tgkolda/TensorToolbox.
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
-% The full license terms can be found in tensor_toolbox/LICENSE.txt
-% $Id: subsref.m,v 1.10 2010/03/19 23:46:31 tgkolda Exp $
+% The full license terms can be found in the file LICENSE.txt
 
 switch s(1).type    
     case '.'

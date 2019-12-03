@@ -19,6 +19,10 @@ function Y = ttm(X,V,varargin)
 %   Y = TTM(...,'t') performs the same computations as above except
 %   the matrices are transposed.
 %
+%   In all cases, the result Z is a sparse tensor if it has 50% or
+%   fewer nonzeros; otherwise the result is returned as a dense
+%   tensor.
+%
 %   Examples
 %   X = sptenrand([5 3 4 2], 10);
 %   A = rand(4,5); B = rand(4,3); C = rand(3,4); D = rand(3,2);
@@ -39,11 +43,11 @@ function Y = ttm(X,V,varargin)
 %   See also SPTENSOR, TENSOR/TTM.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.

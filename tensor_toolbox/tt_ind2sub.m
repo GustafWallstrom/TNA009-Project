@@ -6,16 +6,7 @@ function subs = tt_ind2sub(siz,idx)
 %
 %   See also TT_SUB2IND, IND2SUB.
 %
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
-
-% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
-% http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
-% DE-AC04-94AL85000, there is a non-exclusive license for use of this
-% work by or on behalf of the U.S. Government. Export of this data may
-% require a license from the United States Government.
-% The full license terms can be found in the file LICENSE.txt
+%MATLAB Tensor Toolbox. Copyright 2018, Sandia Corporation.
 
 
 if isempty(idx)
@@ -25,8 +16,9 @@ end
 
 k = [1 cumprod(siz(1:end-1))];
 n = length(siz);
-idx = idx - 1;
-for i = n : -1 : 1
-    subs(:,i) = floor(idx / k(i)) + 1;
-    idx = rem(idx,k(i));
+idx=idx-1;
+for i = n : -1 : 1 
+    div=floor(idx/k(i));
+    subs(:,i) = div+1;
+    idx=idx-k(i)*div;
 end

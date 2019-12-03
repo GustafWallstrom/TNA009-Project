@@ -1,8 +1,9 @@
 function X = normalize(X,N,normtype,mode)
 %NORMALIZE Normalizes the columns of the factor matrices.
 %
-%   NORMALIZE(X) normalizes the columns of each factor matrix, absorbing
-%   the excess weight into lambda. Also ensures that lambda is positive.  
+%   NORMALIZE(X) normalizes the columns of each factor matrix using the
+%   vector 2-norm, absorbing the excess weight into lambda. Also ensures
+%   that lambda is positive.   
 %
 %   NORMALIZE(X,N) absorbs the weights into the Nth factor matrix instead
 %   of lambda. (All the lambda values are 1.)
@@ -22,14 +23,14 @@ function X = normalize(X,N,normtype,mode)
 %   NORMALIZE(X,[],1,I) just normalizes the I-th factor using whatever norm
 %   is specified by the 3rd argument (1 or 2).
 %
-%   See also KTENSOR, NCOMPONENTS, ARRANGE.
+%   See also KTENSOR, ARRANGE, REDISTRIBUTE, TOCELL.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -89,8 +90,10 @@ elseif (N > 0)
     X.u{N} = X.u{N} * diag(X.lambda);
     X.lambda = ones(size(X.lambda));
 elseif (N == -2)
-    [~,p] = sort(X.lambda,'descend');
-    X = arrange(X,p);
+    if ncomponents(X) > 1
+        [~,p] = sort(X.lambda,'descend');
+        X = arrange(X,p);
+    end
 end
 
 

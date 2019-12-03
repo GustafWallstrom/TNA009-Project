@@ -2,24 +2,22 @@ function res = innerprod(X,Y)
 %INNERPROD Efficient inner product with a ttensor.
 %
 %   R = INNERPROD(X,Y) efficiently computes the inner product between
-%   two tensors X and Y.  If Y is a tensor or sptensor, the inner
-%   product is computed directly and the computational complexity
-%   is...  If Y is a ktensor, the inner product method for that type
-%   of tensor is called.
+%   two tensors X and Y. This inner product is the standard inner product,
+%   if the tensors were treated as vectors. How to do this most efficiently 
+%   depends on the tensor Y.
 %
-%   See also TTENSOR, KTENSOR/INNERPROD
+%   See also TENSOR/INNERPROD, TTENSOR, KTENSOR/INNERPROD
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2010, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
-% This is the MATLAB Tensor Toolbox by Brett Bader and Tamara Kolda.
-% http://csmr.ca.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2010) Sandia Corporation. Under the terms of Contract
+% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
+% http://www.sandia.gov/~tgkolda/TensorToolbox.
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
-% The full license terms can be found in tensor_toolbox/LICENSE.txt
-% $Id: innerprod.m,v 1.13 2010/03/19 23:46:31 tgkolda Exp $
+% The full license terms can be found in the file LICENSE.txt
 
 % X is a ttensor
 switch class(Y)

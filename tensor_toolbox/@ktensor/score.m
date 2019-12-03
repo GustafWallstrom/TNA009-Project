@@ -31,23 +31,35 @@ function [best_score, A, flag, best_perm] = score(A,B,varargin)
 %   SCORE(A,B,'param',value,...) takes the following parameters...
 %
 %      'lambda_penalty' - Boolean indicating whether or not to consider the
-%      lambda values in the calculations. {true}
+%      lambda values in the calculations. Default: true
 %
 %      'threshold' - Threshold specified in the formula above for
-%      deteriming a match. {0.99^N where N = ndims(A)}.
+%      determining a match. Default: 0.99^N where N = ndims(A)
 %
 %      'greedy' - Boolean indicating whether or not to consider all
-%      possible matchings (expotentially expensive) or just do a greedy
-%      matching. {false}
+%      possible matchings (exponentially expensive) or just do a greedy
+%      matching. Default: true
 %
+%   Examples
+%   A = ktensor([2; 1; 2], rand(3,3), rand(4,3), rand(5,3));
+%   B = ktensor([2; 4], ones(3,2), ones(4,2), ones(5,2));
+%   score(A, B) %<--score(B,A) does not work: B has more components than A
+%   score(A, B, 'greedy', false) %<--Check all permutations
+%   score(A, B, 'lambda_penalty', false) %<--Without lambda penalty
+%
+%   This method is described in G. Tomasi and R. Bro, A Comparison of
+%   Algorithms for Fitting the PARAFAC Model, Computational Statistics &
+%   Data Analysis, Vol. 50, No. 7, pp. 1700-1734, April 2006,
+%   doi:10.1016/j.csda.2004.11.013.
+%  
 %   See also KTENSOR.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -81,7 +93,7 @@ end
 %% Parse parameters
 params = inputParser;
 params.addParamValue('lambda_penalty', true, @islogical);
-params.addParamValue('greedy', false, @islogical);
+params.addParamValue('greedy', true, @islogical);
 params.addParamValue('threshold', 0.99^N, @(x)(x<1));
 params.parse(varargin{:});
 
@@ -98,7 +110,7 @@ for n = 1:N
 end
 
 % Collapse across all modes using the product
-C = collapse(Cbig,3,@prod);
+C = double(collapse(Cbig,3,@prod));
 
 %% Calculate penalty based on differences in the Lambda's
 % Note that we are assuming the the lambda value are positive because the
@@ -109,7 +121,7 @@ if (params.Results.lambda_penalty)
         la = A.lambda(ra);
         for rb = 1:RB
             lb = B.lambda(rb);
-            P(ra,rb) = 1 - (abs(la-lb) / max(la,lb));
+            P(ra,rb) = 1 - (abs(la-lb) / max(abs(la),abs(lb)));
         end
     end
     C = P.*C;
@@ -124,8 +136,8 @@ if (params.Results.greedy)
         [~,idx] = max(C(:));
         [i,j] = ind2sub([RA RB], idx);
         best_score = best_score + C(i,j);
-        C(i,:) = 0;
-        C(:,j) = 0;
+        C(i,:) = -10;
+        C(:,j) = -10;
         best_perm(j) = i;
     end
     best_score = best_score / RB;

@@ -21,6 +21,8 @@ function a = subsref(t,s)
 %
 %   Examples
 %   X = tensor(rand(3,4,2,1),[3 4 2 1]);
+%   X.data %<-- returns multidimensional array
+%   X.size %<-- returns size
 %   X(1,1,1,1) %<-- produces a scalar
 %   X(1,1,1,:) %<-- produces a tensor of order 1 and size 1
 %   X(:,1,1,:) %<-- produces a tensor of size 3 x 1
@@ -34,11 +36,11 @@ function a = subsref(t,s)
 %   See also TENSOR, TENSOR/FIND.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -110,22 +112,24 @@ switch s(1).type
         if size(s(1).subs{1},2) == ndims(t)
             % extract array of subscripts
             subs = s(1).subs{1};
-            a = t.data(tt_sub2ind(t.size,subs));
+            a = squeeze(t.data(tt_sub2ind(t.size,subs)));
+            if isrow(a), a = a'; end
             a = tt_subsubsref(a,s);
             return;
         end
 
         % *** CASE 2b: Linear indexing ***
-        if numel(s(1).subs) ~= 1
+        if (numel(s(1).subs) > 2) || ((numel(s(1).subs) == 2) && ~isequal(s(1).subs{end},'extract'))
             error('Invalid indexing');
         end
 
         idx = s(1).subs{1};
-        if ndims(idx) ~=2 || size(idx,2) ~= 1
+        if ~iscolumn(idx)
             error('Expecting a column index');
         end
 
-        a = t.data(idx);
+        a = squeeze(t.data(idx));
+        if isrow(a), a = a'; end
         a = tt_subsubsref(a,s);
         return;
 end

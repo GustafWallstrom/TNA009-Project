@@ -16,17 +16,17 @@ function c = ttv(a,v,dims)
 %   along the dimensions specified by DIMS.
 %
 %   In all cases, the result Y is a sparse tensor if it has 50% or
-%   fewer nonzeros; otherwise ther result is returned as a dense
+%   fewer nonzeros; otherwise the result is returned as a dense
 %   tensor.
 %
 %   See also SPTENSOR, SPTENSOR/TTM, TENSOR, TENSOR/TTV.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -65,21 +65,24 @@ end
 % appropriate vector
 newvals = a.vals;
 subs = a.subs;
-for n = 1:length(dims)
-     idx = subs(:,dims(n)); % extract indices for dimension n
-     w = v{vidx(n)};        % extract nth vector
-     bigw = w(idx);         % stretch out the vector
-     newvals = newvals .* bigw;
+if isempty(subs) %There are no nonzero terms in a
+    newsubs = [];
+else
+    for n = 1:length(dims)
+        idx = subs(:,dims(n)); % extract indices for dimension n
+        w = v{vidx(n)};        % extract nth vector
+        bigw = w(idx);         % stretch out the vector
+        newvals = newvals .* bigw;
+    end
+    newsubs = subs(:,remdims);
 end
-
 % Case 0: If all dimensions were used, then just return the sum
 if isempty(remdims)
     c = sum(newvals);
     return;
 end
 
-% Otherwise, figure out the subscripts and accumuate the results.
-newsubs = a.subs(:,remdims);
+% Otherwise, figure new subscripts and accumulate the results.
 newsiz = a.size(remdims);
 
 % Case I: Result is a vector

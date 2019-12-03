@@ -1,3 +1,76 @@
+%SPTENSOR Class for sparse tensors.
+%
+%SPTENSOR Methods:
+%   and       - Logical AND (&) for sptensors.
+%   collapse  - Collapse sparse tensor along specified dimensions.
+%   contract  - Contract sparse tensor along two dimensions (array trace).
+%   disp      - Command window display of a sparse tensor.
+%   display   - Command window display of a sparse tensor.
+%   divide    - Divide an SPTENSOR by a nonnegative KTENSOR.
+%   double    - Converts a sparse tensor to a dense multidimensional array.
+%   elemfun   - Manipulate the nonzero elements of a sparse tensor.
+%   end       - Last index of indexing expression for sparse tensor.
+%   eq        - Equal (==) for sptensors.
+%   find      - Find subscripts of nonzero elements in a sparse tensor.
+%   full      - Convert a sparse tensor to a (dense) tensor.
+%   ge        - Greater than or equal for sptensors.
+%   gt        - Greater than for sptensors.
+%   innerprod - Efficient inner product with a sparse tensor.
+%   isequal   - Compare spares tensors for equality.
+%   isscalar  - False for sptensors.
+%   ldivide   - Array right division for sparse tensors.
+%   le        - Less than or equal for sptensors.
+%   lt        - Less than for sptensors.
+%   mask      - Extract values as specified by a mask tensor.
+%   minus     - Binary subtraction for sparse tensors. 
+%   mldivide  - Slash left division for sparse tensors.
+%   mrdivide  - Slash right division for sparse tensors.
+%   mtimes    - sptensor-scalar multiplication.
+%   mttkrp    - Matricized tensor times Khatri-Rao product for sparse tensor.
+%   ndims     - Number of dimensions of a sparse tensor.
+%   ne        - Not equal (~=) for sptensors.
+%   nnz       - Number of nonzeros in sparse tensor.
+%   norm      - Frobenius norm of a sparse tensor.
+%   not       - Logical NOT (~) for sptensors.
+%   nvecs     - Compute the leading mode-n vectors for a sparse tensor.
+%   ones      - Replace nonzero elements of sparse tensor with ones.
+%   or        - Logical OR (|) for sptensors.
+%   permute   - Rearrange the dimensions of a sparse tensor.
+%   plus      - Binary addition for sparse tensors. 
+%   rdivide   - Array right division for sparse tensors.
+%   reshape   - Reshape sparse tensor.
+%   scale     - Scale along specified dimensions for sparse tensors.
+%   size      - Sparse tensor dimensions.
+%   spmatrix  - Converts a two-way sparse tensor to sparse matrix.
+%   spones    - Replace nonzero sparse tensor elements with ones.
+%   sptensor  - Create a sparse tensor.
+%   squeeze   - Remove singleton dimensions from a sparse tensor.
+%   subsasgn  - Subscripted assignment for sparse tensor.
+%   subsref   - Subscripted reference for a sparse tensor.
+%   times     - Array multiplication for sparse tensors.
+%   ttm       - Sparse tensor times matrix.
+%   ttt       - Sparse tensor times sparse tensor.
+%   ttv       - Sparse tensor times vector.
+%   uminus    - Unary minus (-) for sptensor.
+%   uplus     - Unary plus (+) for sptensor.
+%   xor       - Logical XOR for sptensors.
+%
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'sptensor_doc.html')))">Documentation page for Sparse Tensor Class</a>
+%
+%   See also TENSOR_TOOLBOX
+%
+%   How to cite the sptensor class:
+%   * BW Bader and TG Kolda. Efficient MATLAB Computations with Sparse
+%     and Factored Tensors, SIAM J Scientific Computing 30:205-231, 2007.
+%     <a href="http:dx.doi.org/10.1137/060676489"
+%     >DOI: 10.1137/060676489</a>. <a href="matlab:web(strcat('file://',...
+%     fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%     'bibtex.html#TTB_Sparse')))">[BibTeX]</a>
+%
+%MATLAB Tensor Toolbox. Copyright 2017, Sandia Corporation.
+
 function t = sptensor(varargin)
 %SPTENSOR Create a sparse tensor.
 %
@@ -22,7 +95,11 @@ function t = sptensor(varargin)
 %   sparse matrix. Note that a row-vector, integer MDA is interpreted as a
 %   size (see previous constructor).
 %
-%   S = SPTENSOR is the empty constructor.
+%   X = SPTENSOR is the empty constructor.
+%
+%   X = SPTENSOR(FH,SZ,NZ) creates a random sparse tensor of the specified
+%   size with NZ nonzeros (this can be an explit value or a proportion).
+%   The function handle FH is used to create the nonzeros.
 %
 %   The argument VALS may be scalar, which is expanded to be the
 %   same length as SUBS, i.e., it is equivalent to VALS*(p,1).
@@ -37,14 +114,14 @@ function t = sptensor(varargin)
 %   myfun = @(x) sum(x) / 3;
 %   X = sptensor(subs,vals,siz,myfun) %<-- custom accumulation
 %
-%   See also SPTENRAND, TENSOR, SPTENMAT, SPTENSOR3, ACCUMARRAY
+%   See also SPTENSOR, SPTENRAND.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -80,17 +157,19 @@ if (nargin == 1)
 
             % Extract the tensor size and order
             siz = source.tsize;
-
-            % Convert the 2d-subscipts into nd-subscripts
-            if ~isempty(source.rdims)
-                subs(:,source.rdims) = ...
-                    tt_ind2sub(siz(source.rdims),source.subs(:,1));
+            
+            if isempty(source.subs) %There are no nonzero terms                
+                subs = [];            
+            else % Convert the 2d-subscipts into nd-subscripts                                
+                if ~isempty(source.rdims)
+                    subs(:,source.rdims) = ... 
+                        tt_ind2sub(siz(source.rdims),source.subs(:,1));
+                end
+                if ~isempty(source.cdims)
+                    subs(:,source.cdims) = ...
+                        tt_ind2sub(siz(source.cdims),source.subs(:,2));
+                end
             end
-            if ~isempty(source.cdims)
-                subs(:,source.cdims) = ...
-                    tt_ind2sub(siz(source.cdims),source.subs(:,2));
-            end
-
             % Copy the values (which do not need to be modified)
             vals = source.vals;
 
@@ -164,7 +243,8 @@ if (nargin == 1)
 
 end % nargin == 1
 
-% SPECIAL CASE for INTERACTION WITH MEX FILES
+% SPECIAL CASE for INTERACTION WITH MEX FILES OR DIRECT CREATION OF
+% SPTENSOR WITHOUT ANY SORTING OR OTHER STANDARD CHECKS
 if (nargin == 4) && (isnumeric(varargin{4})) && (varargin{4} == 0)
 
     % Store everything
@@ -177,6 +257,43 @@ if (nargin == 4) && (isnumeric(varargin{4})) && (varargin{4} == 0)
 
     return;
 
+end
+
+% RANDOM TENSOR
+if (nargin == 3) && isa(varargin{1},'function_handle')
+    fh = varargin{1};
+    sz = varargin{2};
+    nz = varargin{3};
+    
+    if (nz < 0) || (nz >= prod(sz))
+        error('Requested number of nonzeros must be positive and less than the total size')
+    elseif (nz < 1)
+        nz = ceil(prod(sz) * nz);
+    else
+        nz = floor(nz);
+    end
+    
+    % Keep iterating until we find enough unique nonzeros or we give up
+    subs = [];
+    cnt = 0;
+    while (size(subs,1) < nz) && (cnt < 10)
+        subs = ceil( rand(nz, size(sz,2)) * diag(sz) );
+        subs = unique(subs, 'rows');
+        cnt = cnt + 1;
+    end
+    
+    nz = min(nz, size(subs,1));
+    subs = subs(1:nz,:);
+    vals = fh(nz,1);
+    
+    % Store everything
+    t.subs = subs;
+    t.vals = vals;
+    t.size = sz;
+
+    % Create the tensor
+    t = class(t, 'sptensor');
+    return;
 end
 
 % CONVERT A SET OF INPUTS

@@ -26,11 +26,11 @@ function x = subsasgn(x,s,b)
 %   See also TENSOR, TENSOR/SUBSREF.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -46,7 +46,7 @@ switch s.type
 
     case '()'
 
-        % We don't allow sub-subscriptingfor tensors.
+        % We don't allow sub-subscripting for tensors.
         if numel(s) ~= 1
             error('Invalid subscripting');
         end
@@ -55,20 +55,18 @@ switch s.type
         % a list of linear indices...
         type = 'error';
         if ndims(x) <= 1
-           if (numel(s.subs) > 1) || ...
-                   ((ndims(s.subs{1}) == 2) && ...
-                    (size(s.subs{1},1) == 1  || size(s.subs{1},2) == 1))
+           if (numel(s.subs) > 1) || isvector(s.subs{1})
                type = 'subtensor';
-           elseif ndims(s.subs{1}) == 2
+           elseif ismatrix(s.subs{1})
                type = 'subscripts';
            end
         else
             if numel(s.subs) >= ndims(x)
                 type = 'subtensor';
-            elseif ndims(s.subs{1}) == 2
+            elseif ismatrix(s.subs{1})
                 if size(s.subs{1},2) >= ndims(x)
                     type = 'subscripts';
-                elseif size(s.subs{1},2) == 1
+                elseif iscolumn(s.subs{1})
                     type = 'linear indicies';
                 end
             end
@@ -126,7 +124,10 @@ switch s.type
         % *** CASE 2b: Linear indexing ***
         if isequal(type,'linear indicies');
             idx = s.subs{1};
-            x.data (idx) = b;
+            if any(idx > prod(x.size))
+                error('TTB:BadIndex','In assignement X(I) = Y, a tensor X cannot be resized');
+            end
+            x.data(idx) = b;
             return
         end
         

@@ -2,16 +2,20 @@ function X = redistribute(X,mode)
 %REDISTRIBUTE Distribute lambda values to a specified mode. 
 %
 %   K = REDISTRIBUTE(K,N) absorbs the weights from the lambda vector
-%   into mode N. Set the lambda vector to all ones.
+%   into mode N. The lambda vector is then set to all ones.
+%
+%   Examples
+%   K = ktensor([2; 4], ones(3,2), ones(4,2), ones(2,2));
+%   redistribute(K, 3) %<--Weight vector is absorbed into factor matrix
 %
 %   See also KTENSOR, NORMALIZE.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.

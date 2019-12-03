@@ -15,7 +15,7 @@ function c = ttt(varargin)
 %   must equal size(Y,DIMS).
 %
 %   In all cases, the result Z is a sparse tensor if it has 50% or
-%   fewer nonzeros; otherwise ther result is returned as a dense
+%   fewer nonzeros; otherwise the result is returned as a dense
 %   tensor.
 %
 %   Examples
@@ -29,11 +29,11 @@ function c = ttt(varargin)
 %   See also SPTENSOR, TENSOR/TTT, SPTENSOR/TTV, SPTENSOR/TTM.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -139,7 +139,9 @@ end
 
 aa = sparse(aii,ajj,a.vals,m,n);
 bb = sparse(bii,bjj,b.vals,m,p);
-cc = aa'*bb;
+% We don't use aa' here because it makes mistakes in the complex case. We
+% really just want transpose, not the conjugate transpose.
+cc = transpose(aa)*bb; 
 
 % Check for a scalar result, corresponding to an inner product.
 if isempty(aremdims) && isempty(bremdims)

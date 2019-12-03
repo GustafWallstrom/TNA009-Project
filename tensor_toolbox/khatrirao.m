@@ -15,6 +15,10 @@ function P = khatrirao(varargin)
 %   KHATRIRAO(...,'r') computes the Khatri-Rao product in reverse
 %   order.
 %
+%   NOTE: Updated to use BSXFUN per work of Phan Anh Huy. See Anh Huy Phan,
+%   Petr Tichavský, Andrzej Cichocki, On Fast Computation of Gradients for
+%   CANDECOMP/PARAFAC Algorithms, arXiv:1204.1586, 2012.
+%
 %   Examples
 %   A = rand(5,2); B = rand(3,2); C = rand(2,2);
 %   khatrirao(A,B) %<-- Khatri-Rao of A and B
@@ -24,16 +28,7 @@ function P = khatrirao(varargin)
 %
 %   See also TENSOR, KTENSOR.
 %
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
-
-% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
-% http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
-% DE-AC04-94AL85000, there is a non-exclusive license for use of this
-% work by or on behalf of the U.S. Government. Export of this data may
-% require a license from the United States Government.
-% The full license terms can be found in the file LICENSE.txt
+%MATLAB Tensor Toolbox. Copyright 2018, Sandia Corporation.
 
 
 %% Error checking on input and set matrix order
@@ -59,37 +54,21 @@ else
 end
 
 %% Error check on matrices and compute number of rows in result 
-
-% N = number of columns (must be the same for every input)
-N = size(A{1},2); 
-
-% After loop, M = number of rows in the result
-M = 1; 
-
-for i = matorder
-    if ndims(A) ~= 2
-        error('Each argument must be a matrix');
-    end
-    if (N ~= size(A{i},2))
-        error('All matrices must have the same number of columns.')
-    end
-    M = M * size(A{i},1);
+ndimsA = cellfun(@ndims, A);
+if(~all(ndimsA == 2))
+    error('Each argument must be a matrix');
 end
+
+ncols = cellfun(@(x) size(x, 2), A);
+if(~all(ncols == ncols(1)))
+    error('All matrices must have the same number of columns.');
+end
+
 
 %% Computation
-
-% Preallocate
-P = zeros(M,N);
-
-% Loop through all the columns
-for n = 1:N
-    % Loop through all the matrices
-    ab = A{matorder(1)}(:,n);
-    for i = matorder(2:end)
-       % Compute outer product of nth columns
-       ab = A{i}(:,n) * ab(:).';
-    end
-    % Fill nth column of P with reshaped result
-    P(:,n) = ab(:);          
+N = ncols(1);
+P = A{matorder(1)};
+for i = matorder(2:end)
+    P = bsxfun(@times, reshape(A{i},[],1,N),reshape(P,1,[],N));
 end
-
+P = reshape(P,[],N);

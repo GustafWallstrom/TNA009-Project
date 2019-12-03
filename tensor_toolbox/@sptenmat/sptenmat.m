@@ -1,3 +1,30 @@
+%SPTENMAT Store sparse tensor as a sparse matrix.
+%
+%SPTENMAT Methods:
+%   aatx     - Implicitly compute A * A' * x for sptenmat.
+%   disp     - Command window display of a sptenmat.
+%   display  - Command window display of a sptenmat.
+%   double   - Convert a sptenmat to a sparse matrix.
+%   end      - Last index of indexing expression for sptenmat.
+%   full     - Convert a sptenmat to a (dense) tenmat.
+%   nnz      - Return number of nonzeros in a sptenmat.
+%   norm     - Frobenius norm of a sptenmat.
+%   size     - Return size of sptenmat.
+%   sptenmat - Matricized sparse tensor stored as a sparse 2D array.
+%   subsasgn - Subscripted assignment for sptenmat.  
+%   subsref  - Subscripted reference for a sptenmat.
+%   tsize    - Tensor size of sptenmat.
+%   uminus   - Unary minus (-) for sptenmat.
+%   uplus    - Unary plus (+) for sptenmat.
+%
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'sptenmat_doc.html')))">Documentation page for sparse tensor-as-matrix class</a>
+%
+%   See also TENSOR_TOOLBOX
+%
+%MATLAB Tensor Toolbox. Copyright 2017, Sandia Corporation.
+
 function a = sptenmat(varargin)
 %SPTENMAT Matricized sparse tensor stored as a sparse 2D array.
 %
@@ -39,14 +66,14 @@ function a = sptenmat(varargin)
 %
 %   A = SPTENMAT is the empty constructor.
 %
-%   See also SPTENSOR, TENMAT.
+%   See also SPTENMAT.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.

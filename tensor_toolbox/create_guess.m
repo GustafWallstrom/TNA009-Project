@@ -46,20 +46,17 @@ function U = create_guess(varargin)
 %   'State' - State of the random number generator. This can be used
 %   to reproduce results.
 %
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
-
-% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
-% http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
-% DE-AC04-94AL85000, there is a non-exclusive license for use of this
-% work by or on behalf of the U.S. Government. Export of this data may
-% require a license from the United States Government.
-% The full license terms can be found in the file LICENSE.txt
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'test_problems_doc.html')))">Documentation page for creating test problems</a>
+%
+%   See also CREATE_PROBLEM.
+%
+%MATLAB Tensor Toolbox. Copyright 2018, Sandia Corporation.
 
 
 %% Random set-up
-defaultStream = RandStream.getDefaultStream;
+defaultStream = RandStream.getGlobalStream;
 
 %% Parse inputs
 p = inputParser;
@@ -125,7 +122,7 @@ switch(params.Factor_Generator)
         end
     case 'orthogonal'
         for n = modes
-            X = tt_RandOrthMat(sz(n));
+            X = matrandorth(sz(n));
             U{n} = X(:,1:nf(n));
         end
     case 'stochastic'

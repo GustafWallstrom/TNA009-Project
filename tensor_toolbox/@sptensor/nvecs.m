@@ -12,14 +12,22 @@ function u = nvecs(t,n,r,opts)
 %   OPTS.eigsopts: options passed to the EIGS routine [struct('disp',0)]
 %   OPTS.flipsign: make each column's largest element positive [true]
 %
+%   Examples
+%   S = sptensor([3 3 3; 1 3 2; 1 1 3], 1, [3,3,3]); %<--Declare an sptensor
+%   nvecs(S,3,2)
+%
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'nvecs_doc.html')))">Documentation page for n-vecs</a>
+%
 %   See also SPTENSOR, SPTENMAT, EIGS.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.

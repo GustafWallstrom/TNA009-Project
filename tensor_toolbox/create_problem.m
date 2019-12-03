@@ -9,7 +9,7 @@ function [info,params] = create_problem(varargin)
 %   tensor, or even have missing data.
 %
 %   [INFO,PARAMS] = CREATE_PROBLEM(...) also returns the parameters that
-%   were used to generate the problem. An indentical problem can be
+%   were used to generate the problem. An identical problem can be
 %   generated via INFO_COPY = CREATE_PROBLEM(PARAMS).
 %  
 %   --- General ---
@@ -55,7 +55,7 @@ function [info,params] = create_problem(varargin)
 %
 %   --- Missing Data Parameters ---
 %
-%   The missing data pattern will be return in the "Pattern" data
+%   The missing data pattern will be returned in the "Pattern" data
 %   field of INFO. If there is no missing data, then this will just be an
 %   empty array. Otherwise, it will be a tensor that is zero whereever data
 %   is missing and one elsewhere. 
@@ -81,7 +81,7 @@ function [info,params] = create_problem(varargin)
 %   zero means no sparse generation, and any positive value is the number
 %   of nonzeros to be inserted. Any value in the range (0,1) will be
 %   interpreted as a percentage. The procedure is incompatible with missing
-%   data. Default: 0 (no sparse geneartion).
+%   data. Default: 0 (no sparse generation).
 %
 %   'Noise' - Amount of Gaussian noise to add. Let N be a "noise"
 %   tensor with entries drawn from the standard norm distribution, and
@@ -96,35 +96,30 @@ function [info,params] = create_problem(varargin)
 %   % Create a 100 x 100 x 100 problem with 5 factors (each entry from the
 %   % standard normal distribution) and 10% noise with diagonal lambda
 %   % values of all ones.
-%   info = createcreate_problem('Lambda_Generator', @ones);
+%   info = create_problem('Lambda_Generator', @ones);
 %
 %   % Same as above except that the we use a special function to generate
 %   % factor matrices with a constant congruence of 0.9.
-%   info = create_problem('Factor_Generator', @(m,n) tt_ccong(m,n,.9), ...
+%   info = create_problem('Factor_Generator', @(m,n) matrandcong(m,n,.9), ...
 %     'Lambda_Generator', @ones);
 %
-%   See also CREATE_GUESS.
+%   <a href="matlab:web(strcat('file://',...
+%   fullfile(getfield(what('tensor_toolbox'),'path'),'doc','html',...
+%   'test_problems_doc.html')))">Documentation page for creating test problems</a>
+%
+%   See also MATRANDCONG, MATRANDORTH, MATRANDNORM, CREATE_GUESS.
 %   
-%MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
-
-% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
-% http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
-% DE-AC04-94AL85000, there is a non-exclusive license for use of this
-% work by or on behalf of the U.S. Government. Export of this data may
-% require a license from the United States Government.
-% The full license terms can be found in the file LICENSE.txt
+%MATLAB Tensor Toolbox. Copyright 2018, Sandia Corporation.
 
 %% Random set-up
-defaultStream = RandStream.getDefaultStream;
+defaultStream = RandStream.getGlobalStream;
 
 %% Parse inputs
 p = inputParser;
 p.addParamValue('State', defaultStream.State, @(x) true);
 p.addParamValue('Soln', [], @(x) isempty(x) || isa(x,'ktensor') || isa(x,'ttensor'));
 p.addParamValue('Type', 'CP', @(x) ismember(lower(x),{'cp','tucker'}));
-p.addParamValue('Size', [10 10 10], @all);
+p.addParamValue('Size', [100 100 100], @all);
 p.addParamValue('Num_Factors', 2, @all);
 p.addParamValue('Factor_Generator', 'randn', @is_valid_matrix_generator);
 p.addParamValue('Lambda_Generator', 'rand', @is_valid_matrix_generator);
@@ -133,7 +128,7 @@ p.addParamValue('M', 0, @(x) is_missing_data(x) || (x == 0));
 p.addParamValue('Sparse_M', false, @islogical);
 p.addParamValue('Sparse_Generation', 0, @(x) x >= 0);
 p.addParamValue('Symmetric', []);
-p.addParamValue('Noise', 0.10, @(x) x >= 0 & x < 1);
+p.addParamValue('Noise', 0.10, @(x) x >= 0);
 % p.addParamValue('Rtest', 0, @(x) isscalar(x) & x >= 0);
 % p.addParamValue('Init_Type', 'random', @(x) ismember(x,{'random','nvecs'}));
 p.parse(varargin{:});
@@ -183,7 +178,7 @@ if isempty(W)
     Z = full(S);   
     % Use symmetric noise for a symmetric problem
     if ~isempty(params.Symmetric)
-        Rdm = symmetrize(Rdm, params.Symmetric);
+        Rdm = symmetrize(Rdm, params.Symmetric); %Robert to discuss with Tammy
     end
 else
     if isa(W,'sptensor')
@@ -237,6 +232,9 @@ P.lambda = P.lambda / eta;
 
 % Determine how many samples per component
 nedges = params.Sparse_Generation;
+if nedges < 1
+    nedges = round(nedges * prod(size(P)));
+end
 nd = ndims(P);
 nc = size(P.U{1},2);
 csample = prosample(nedges, P.lambda);
@@ -369,8 +367,92 @@ S = sum(X,1);
 Y = X * diag(1./S);
 
 function Y = rand_orth_mat(M,N)
-X = tt_RandOrthMat(M);
+X = matrandorth(M);
 Y = X(:,1:N);
 
 function tf = is_missing_data(x)
-tf = isa(x,'tensor') || isa(x,'sptensor') || (isscalar(x) && (x > 0));
+tf = isa(x,'tensor') || isa(x,'sptensor') || (isscalar(x) && (x > 0) && (x < 1));
+
+
+function W = tt_create_missing_data_pattern(sz,M,isSparse)
+%TEST_CREATE_RME Creates a randomly missing element (RME) indicator tensor.
+%
+%   W = TEST_CREATE_RME(SZ,M) creates an indicator (binary) tensor W of the
+%   specified size with 0's indicating missing data and 1's indicating
+%   valid data. The percentage of zeros is given by M. Will only return a
+%   tensor that has at least one entry per N-1 dimensional slice. 
+%
+%MATLAB Tensor Toolbox.
+%Copyright 2015, Sandia Corporation.
+
+% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
+% http://www.sandia.gov/~tgkolda/TensorToolbox.
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
+% DE-AC04-94AL85000, there is a non-exclusive license for use of this
+% work by or on behalf of the U.S. Government. Export of this data may
+% require a license from the United States Government.
+% The full license terms can be found in the file LICENSE.txt
+
+%   Code by Evrim Acar and Tammy Kolda, 2009.
+
+%% Set up isSparse variable
+if ~exist('isSparse','var')
+    isSparse = false;
+end
+
+%% Initialize
+% Number of dimensions
+N = length(sz);
+
+% Total number of entries in tensor of given sz
+P = prod(sz);
+
+% Total number of entries that should be set to one
+Q = ceil((1-M)*P);
+
+%% Create the tensor
+% Keep iterating until the tensor is created or we give up.
+for iter = 1:20
+    % Create the indicator tensor W
+    if isSparse
+        % start with 50% more than Q random subs
+        % TODO: work out the expected value of a*Q to guarantee Q unique entries
+        subs = unique(ceil(rand(ceil(1.5*Q),size(sz,2))*diag(sz)),'rows');
+        % check if there are too many unique subs
+        if size(subs,1) > Q
+            % unique orders the subs and would bias toward first subs
+            % with lower values, so we sample to cut back
+            idx = randperm(size(subs,1));
+            subs = subs(idx(1:Q),:);
+        elseif size(subs,1) < Q
+            warning('Only generated %d of %d desired subscripts', size(subs,1), Q);
+        end
+        W = sptensor(subs,1,sz);
+    else
+        % Compute the linear indices of the missing entries. Note that
+        % the indices must be a column array for the linear indexing
+        % into W to  work.
+        idx = randperm(P);
+        idx = idx(1:Q)';
+        W = tenzeros(sz);
+        W(idx) = 1;
+    end
+    
+    % Check if W has any empty slices
+    isokay = zeros(N,1);
+    for n = 1:N
+        isokay(n) = all(double(collapse(W,-n)));
+    end 
+
+    % Quit if we're okay
+    if all(isokay)
+         break;
+    end
+        
+end
+
+if ~all(isokay)
+    error('After %d iterations, cannot produce a tensor with %f%% missing data without an empty slice.', iter, M*100);
+end
+
+    

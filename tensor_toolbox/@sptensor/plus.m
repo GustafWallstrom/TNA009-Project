@@ -15,11 +15,11 @@ function C = plus(A,B)
 %   See also SPTENSOR.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -47,7 +47,13 @@ if isscalar(A)
     return;
 end
 
-%% Case 2: Both are sparse tensors
+%% Case 2: B is a sumtensor
+if isa(B,'sumtensor')
+    C = plus(B,A); % Call sumtensor's plus.
+    return
+end
+
+%% Case 3: Both are sparse tensors
 
 if ~isa(A,'sptensor') || ~isa(B,'sptensor') || ~isequal(size(A),size(B))
     error('Must be two sparse tensors of the same size');

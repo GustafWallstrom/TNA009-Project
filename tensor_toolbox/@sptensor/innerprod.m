@@ -10,11 +10,11 @@ function res = innerprod(X,Y)
 %   See also SPTENSOR, KTENSOR/INNERPROD, TTENSOR/INNERPROD.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -22,11 +22,20 @@ function res = innerprod(X,Y)
 
 
 % X is a sptensor
-switch class(Y)
+if nnz(X) == 0 %There are no nonzero terms in X.
+    res = 0;
+    return
+end
 
+switch class(Y)
+    
     case {'sptensor'}
         if ~isequal(size(X),size(Y))
             error('X and Y must be the same size.');
+        end
+        if nnz(Y) == 0 %There are no nonzero terms in Y.
+            res = 0;
+            return
         end
         if nnz(X) < nnz(Y);
             [SX,VX] = find(X);
@@ -37,7 +46,7 @@ switch class(Y)
         end
         res = VY'*VX;
         return;
-
+        
     case {'tensor'}
         if ~isequal(size(X),size(Y))
             error('X and Y must be the same size.');
@@ -46,14 +55,14 @@ switch class(Y)
         VY = Y(SX,'extract');
         res = VY'*VX;
         return;
-
+        
     case {'ktensor','ttensor'}
         % Reverse arguments to call ktensor/ttensor implementation
         res = innerprod(Y,X);
         return;
-
+        
     otherwise
         error(['Inner product not available for class ' class(Y)]);
-
+        
 end
 

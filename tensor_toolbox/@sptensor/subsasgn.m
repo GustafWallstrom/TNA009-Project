@@ -35,11 +35,11 @@ function t = subsasgn(t,s,rhs)
 %   See also SPTENSOR, TENSOR/SUBSASGN.
 %
 %MATLAB Tensor Toolbox.
-%Copyright 2012, Sandia Corporation.
+%Copyright 2015, Sandia Corporation.
 
 % This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
 % http://www.sandia.gov/~tgkolda/TensorToolbox.
-% Copyright (2012) Sandia Corporation. Under the terms of Contract
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
 % DE-AC04-94AL85000, there is a non-exclusive license for use of this
 % work by or on behalf of the U.S. Government. Export of this data may
 % require a license from the United States Government.
@@ -257,7 +257,7 @@ switch s.type
             newvals = newvals(idx);
 
             % Find which subscripts already exist and their locations
-            [tf,loc] = ismember(newsubs,t.subs,'rows');
+            [tf,loc] = ismember(newsubs,t.subs,'rows','legacy');
 
             % Split into three groups for processing:
             %
@@ -313,5 +313,34 @@ switch s.type
         error('Incorrect indexing into sptensor.')
 
 end
+
+function type = tt_assignment_type(x,subs,rhs)
+%TT_ASSIGNMENT_TYPE What type of subsasgn is this?
+%
+%MATLAB Tensor Toolbox.
+%Copyright 2015, Sandia Corporation.
+
+% This is the MATLAB Tensor Toolbox by T. Kolda, B. Bader, and others.
+% http://www.sandia.gov/~tgkolda/TensorToolbox.
+% Copyright (2015) Sandia Corporation. Under the terms of Contract
+% DE-AC04-94AL85000, there is a non-exclusive license for use of this
+% work by or on behalf of the U.S. Government. Export of this data may
+% require a license from the United States Government.
+% The full license terms can be found in the file LICENSE.txt
+
+
+if isequal(class(x),class(rhs))
+    type = 'subtensor';
+    return;
+end
+
+if (numel(subs) >= 2)
+    type = 'subtensor';
+    return;
+end
+
+type = 'subscripts';
+
+
 
 
