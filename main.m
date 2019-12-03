@@ -23,4 +23,19 @@ Be = ttm(S,G,2);
 
 subplot(1,3,3);
 imshow(reshape(imageTensor(:,e2,p2),[112,92]));
-
+%%
+clc
+tol = 0.1;
+for e = 1:10
+    for p = 1:40
+       z = imageTensor(:,e,p);
+       [e1, p1] =  classificationQR(Be, F, H, z, tol);
+       if(e1 ~= e || p ~= p1)
+           fprintf('p: %d ', p);
+           fprintf('p1: %d ', p1);
+           fprintf('e: %d ', e);
+           fprintf('e1: %d\n', e1);
+       end
+    end
+end
+fprintf('Done \n');
