@@ -20,11 +20,15 @@ imshow(im)
 
 %QR
 
-Be = ttm(S,G,2);
-[e2, p2] = classificationQR(Be, F, H, z, tol);
+[e2, p2] = classificationQR(S, G , F, H, z, tol);
 
 subplot(1,3,3);
 imshow(reshape(X(:,e2,p2),[112,78]));
+
+%Compression
+
+k = 11;
+[e3, p3] = compression(S, G, F, H, z, k, tol);
 
 %%
 clc
@@ -32,13 +36,16 @@ tol = 0.001;
 for e = 1:11
     for p = 1:10
        z = X(:,e,p);
-       [e1, p1] =  classificationQR(Be, F, H, z, tol);
-       if(e1 ~= e || p ~= p1)
+       %[e1, p1] = classification(C, H, z, tol);
+       %[e1, p1] =  classificationQR(S, G, F, H, z, tol);
+       [e1, p1] = compression(S, G, F, H, z, k, tol);
+       if(p ~= p1)
            fprintf('p: %d ', p);
-           fprintf('p1: %d ', p1);
-           fprintf('e: %d ', e);
-           fprintf('e1: %d\n', e1);
+           fprintf('p1: %d \n', p1);
        end
-    end
-end
+    end   
+ end
 fprintf('Done \n');
+
+%%
+

@@ -1,15 +1,16 @@
-function [e,p] = classificationQR(Be, F, H, z,tol)
+function [e,p] = classificationQR(S, G, F, H, z,tol)
     
+    B = ttm(S,G,2);
     Hp = H';
     zhat = transpose(F)*z;
     
-    for e = 1:size(Be(1,:,1))
+    for e = 1:size(B(1,:,1))
         
-        [Q,R] = qr(double(Be(:,e,:)),0);
+        [Q,R] = qr(double(B(:,e,:)),0);
         
         mina = lscov(R, Q'*zhat);
         
-        for p = 1:size(Be(1,1,:))
+        for p = 1:size(B(1,1,:))
            if(norm(mina - Hp(:,p)) < tol)
                return;
            end
