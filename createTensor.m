@@ -1,6 +1,6 @@
-function [S, F, G, H, D, C] = createTensor(inputMatrix, tol)
+function [S, F, G, H, D, C] = createTensor(inputMatrix)
 
-    T = hosvd(tensor(inputMatrix), tol);
+    T = hosvd(tensor(inputMatrix), 0.001);
     S = T.core;
     F = T.U{1};
     G = T.U{2};
